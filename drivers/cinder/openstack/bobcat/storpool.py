@@ -1,4 +1,4 @@
-#    Copyright (c) 2014 - 2022 StorPool
+#    Copyright (c) 2014 - 2019 StorPool
 #    All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -25,7 +25,6 @@ from oslo_utils import importutils
 from oslo_utils import netutils
 from oslo_utils import units
 from oslo_utils import uuidutils
-import six
 
 from cinder.common import constants
 from cinder import context
@@ -59,7 +58,8 @@ storpool_opts = [
                     'An empty string (the default) makes the driver export '
                     'all volumes using the StorPool native network protocol. '
                     'The value "*" makes the driver export all volumes using '
-                    'iSCSI. '
+                    'iSCSI (see the Cinder StorPool driver documentation for '
+                    'how this option and ``iscsi_cinder_volume`` interact). '
                     'Any other value leads to an experimental not fully '
                     'supported configuration and is interpreted as '
                     'a whitespace-separated list of patterns for IQNs for '
@@ -143,18 +143,11 @@ class StorPoolDriver(driver.VolumeDriver):
         1.2.2   - Reintroduce the driver into OpenStack Queens,
                   add ignore_errors to the internal _detach_volume() method
         1.2.3   - Advertise some more driver capabilities.
-        2.0.0   - Drop _attach_volume() and _detach_volume(), our os-brick
-                  connector will handle this.
-                - Detach temporary snapshots and volumes after copying data
-                  to or from from Glance images.
-                - Drop backup_volume()
-                - Avoid data duplication in create_cloned_volume()
-                - Implement clone_image()
-                - Implement revert_to_snapshot().
-                - Add support for exporting volumes via iSCSI
+        2.0.0   - Implement revert_to_snapshot().
+        2.1.0   - Add iSCSI export support.
     """
 
-    VERSION = '2.0.0'
+    VERSION = '2.1.0'
     CI_WIKI_NAME = 'StorPool_distributed_storage_CI'
 
     def __init__(self, *args, **kwargs):
@@ -164,14 +157,14 @@ class StorPoolDriver(driver.VolumeDriver):
         self._ourId = None
         self._ourIdInt = None
         self._attach = None
-        self._use_iscsi = None
+        self._use_iscsi = False
 
     @staticmethod
     def get_driver_options():
         return storpool_opts
 
     def _backendException(self, e):
-        return exception.VolumeBackendAPIException(data=six.text_type(e))
+        return exception.VolumeBackendAPIException(data=str(e))
 
     def _template_from_volume(self, volume):
         default = self.configuration.storpool_template
@@ -625,9 +618,9 @@ class StorPoolDriver(driver.VolumeDriver):
         src_template = self._template_from_volume(src_volume)
 
         template = self._template_from_volume(volume)
-        LOG.debug('clone volume id %(vol_id)s template %(template)s', {
-            'vol_id': repr(volume['id']),
-            'template': repr(template),
+        LOG.debug('clone volume id %(vol_id)r template %(template)r', {
+            'vol_id': volume['id'],
+            'template': template,
         })
         if template == src_template:
             LOG.info('Using baseOn to clone a volume into the same template')
@@ -777,7 +770,7 @@ class StorPoolDriver(driver.VolumeDriver):
             'total_capacity_gb': total / units.Gi,
             'free_capacity_gb': free / units.Gi,
             'reserved_percentage': 0,
-            'multiattach': not self._use_iscsi,
+            'multiattach': self._use_iscsi,
             'QoS_support': False,
             'thick_provisioning_support': False,
             'thin_provisioning_support': True,
@@ -829,26 +822,24 @@ class StorPoolDriver(driver.VolumeDriver):
         templ = self.configuration.storpool_template
         repl = self.configuration.storpool_replication
         if diff['extra_specs']:
-            for (k, v) in diff['extra_specs'].items():
-                if k == 'volume_backend_name':
-                    if v[0] != v[1]:
-                        # Retype of a volume backend not supported yet,
-                        # the volume needs to be migrated.
-                        return False
-                elif k == 'storpool_template':
-                    if v[0] != v[1]:
-                        if v[1] is not None:
-                            update['template'] = v[1]
-                        elif templ is not None:
-                            update['template'] = templ
-                        else:
-                            update['replication'] = repl
-                else:
-                    # We ignore any extra specs that we do not know about.
-                    # Let's leave it to Cinder's scheduler to not even
-                    # get this far if there is any serious mismatch between
-                    # the volume types.
-                    pass
+            # Check for the StorPool extra specs. We intentionally ignore any
+            # other extra_specs because the cinder scheduler should not even
+            # call us if there's a serious mismatch between the volume types."
+            if diff['extra_specs'].get('volume_backend_name'):
+                v = diff['extra_specs'].get('volume_backend_name')
+                if v[0] != v[1]:
+                    # Retype of a volume backend not supported yet,
+                    # the volume needs to be migrated.
+                    return False
+            if diff['extra_specs'].get('storpool_template'):
+                v = diff['extra_specs'].get('storpool_template')
+                if v[0] != v[1]:
+                    if v[1] is not None:
+                        update['template'] = v[1]
+                    elif templ is not None:
+                        update['template'] = templ
+                    else:
+                        update['replication'] = repl
 
         if update:
             name = self._attach.volumeName(volume['id'])
@@ -881,21 +872,21 @@ class StorPoolDriver(driver.VolumeDriver):
                       'the StorPool cluster.',
                       {'oid': orig_id, 'tid': temp_id})
             int_name = temp_name + '--temp--mig'
-            LOG.debug('Trying to swap the volume names, intermediate "%(int)s"',
+            LOG.debug('Trying to swap volume names, intermediate "%(int)s"',
                       {'int': int_name})
             try:
                 LOG.debug('- rename "%(orig)s" to "%(int)s"',
-                    {'orig': orig_name, 'int': int_name})
+                          {'orig': orig_name, 'int': int_name})
                 self._attach.api().volumeUpdate(orig_name,
                                                 {'rename': int_name})
 
                 LOG.debug('- rename "%(temp)s" to "%(orig)s"',
-                    {'temp': temp_name, 'orig': orig_name})
+                          {'temp': temp_name, 'orig': orig_name})
                 self._attach.api().volumeUpdate(temp_name,
                                                 {'rename': orig_name})
 
                 LOG.debug('- rename "%(int)s" to "%(temp)s"',
-                    {'int': int_name, 'temp': temp_name})
+                          {'int': int_name, 'temp': temp_name})
                 self._attach.api().volumeUpdate(int_name,
                                                 {'rename': temp_name})
                 return {'_name_id': None}

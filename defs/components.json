@@ -75,6 +75,18 @@
                     }
                 },
                 "bobcat": {
+                    "23.3.1.1.0.0": {
+                        "comment": "StorPool fixes for Bobcat (iSCSI multipath)",
+                        "files": {
+                            "volume/driver.py": {
+                                "sha256": "5e8f5128803180fc5b1ccad2791bebcf847f0bde542eb58597b2e8d12d48ab15"
+                            },
+                            "volume/drivers/storpool.py": {
+                                "sha256": "85033648d36605fbba2b445bb94d0acaae3763049802e720e5389b451b237678"
+                            }
+                        },
+                        "outdated": false
+                    },
                     "23.0.0.8.0.0": {
                         "comment": "StorPool fixes for Bobcat (iSCSI multipath)",
                         "files": {
@@ -85,7 +97,7 @@
                                 "sha256": "dd9ef3a599089a8c6b6e0e19a7c017556504c1e47c07e4b53d3d8a4492757d68"
                             }
                         },
-                        "outdated": false
+                        "outdated": true
                     },
                     "23.0.0.0.0.0": {
                         "comment": "upstream Bobcat 23.0.0",
