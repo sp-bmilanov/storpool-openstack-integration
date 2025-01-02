@@ -99,6 +99,18 @@
                         },
                         "outdated": true
                     },
+                    "23.3.1.0.0.0": {
+                        "comment": "Kolla Bobcat snapshot 2024-12-20",
+                        "files": {
+                            "volume/driver.py": {
+                                "sha256": "5e8f5128803180fc5b1ccad2791bebcf847f0bde542eb58597b2e8d12d48ab15"
+                            },
+                            "volume/drivers/storpool.py": {
+                                "sha256": "658572416f99ac316860df92b57466dfa99612bf4dd64ee1b4fe11d52e3eae4e"
+                            }
+                        },
+                        "outdated": true
+                    },
                     "23.0.0.0.0.0": {
                         "comment": "upstream Bobcat 23.0.0",
                         "files": {
