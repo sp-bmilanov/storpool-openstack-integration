@@ -1611,6 +1611,19 @@
                         },
                         "outdated": true
                     },
+                    "6.4.2.0.0.0": {
+                        "comment": "Kolla Bobcat 6.4.2 snapshot 2024-12-20",
+
+                        "files": {
+                            "initiator/connectors/fibre_channel.py": {
+                                "sha256": "5847f578930125b4878bc48a71122c6f8b0e89b4e5320d2b9fbce6a74f18544c"
+                            },
+                            "initiator/connectors/storpool.py": {
+                                "sha256": "1f24d4f7033c2585678341fb0b114d89e12af6070e758f111c9a505610c3d41c"
+                            }
+                        },
+                        "outdated": true
+                    },
                     "6.4.0.0.0.0": {
                         "comment": "upstream Bobcat 6.4.0",
                         "files": {
