@@ -818,6 +818,30 @@
                         },
                         "outdated": true
                     },
+                    "28.3.1.0.0.0": {
+                        "comment": "Kolla Bobcat snapshot",
+                        "files": {
+                            "virt/libvirt/driver.py": {
+                                "sha256": "ba3874a230c593e9d473a6f374f802bb03d71fbd82d227a04ea5db3be942b511"
+                            },
+                            "virt/libvirt/config.py": {
+                                "sha256": "1432cf104dc22aec4a2785877c458621ddab40392b2d260aea38d114bac4c5f0"
+                            },
+                            "conf/libvirt.py": {
+                                "sha256": "d670cf7805e73c68a137bdc525a09b2fbce1ce3bd56f931b45ee9c02f4c618b4"
+                            },
+                            "tests/fixtures/libvirt_data.py": {
+                                "sha256": "b9d1d763825343efb01d158defd1630ac4569923951b1b140a633421bc313fbb"
+                            },
+                            "tests/unit/virt/libvirt/test_config.py": {
+                                "sha256": "e7572541968919529aac1fb2f6c90a46a17e972a800f360d5034650c7ef2bdc2"
+                            },
+                            "virt/libvirt/volume/volume.py": {
+                                "sha256": "da9268880d3dc8d7146cea9866fb30855cb528d4179e11b7fa2cf6b7b85acab3"
+                            }
+                        },
+                        "outdated": true
+                    },
                     "28.0.1.0.0.2": {
                         "comment": "upstream Bobcat snapshot 2024-04-23",
                         "files": {
