@@ -662,6 +662,18 @@
             ],
             "branches": {
                 "bobcat": {
+                    "27.1.1.0.0.0": {
+                        "comment": "Kolla Glance snapshot 2024-12-20",
+                        "files": {
+                            "async_/__init__.py": {
+                                "sha256": "6f3869b89401197d1ddc1df53ec4fc6f55546fb4d88ec9eaf837e9fdc00cebc5"
+                            },
+                            "api/v2/images.py": {
+                                "sha256": "539e664ecb0aedfe568738b84fe508a9d159093285a8c0f843b31bd57d3b2b11"
+                            }
+                        },
+                        "outdated": false
+                    },
                     "26.0.0.0.0.90": {
                         "comment": "upstream Glance 27.0.0.0rc2",
                         "files": {
