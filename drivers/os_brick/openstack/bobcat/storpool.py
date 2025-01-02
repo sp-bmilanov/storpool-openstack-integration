@@ -157,7 +157,8 @@ class StorPoolConnector(base.BaseLinuxConnector):
                 'failed: %s' % (exc)) from exc
 
         sp_global_id = volume_info.globalId
-        return {'type': 'block', 'path': str(DEV_STORPOOL_BYID / sp_global_id)}
+        return {'type': 'block',
+                'path': str(DEV_STORPOOL_BYID) + '/' + sp_global_id}
 
     @utils.connect_volume_undo_prepare_result(unlink_after=True)
     def disconnect_volume(self, connection_properties, device_info,
@@ -195,7 +196,7 @@ class StorPoolConnector(base.BaseLinuxConnector):
         if device_path is None:
             LOG.debug('connection_properties is missing "device_path",'
                       ' looking for "path" inside device_info')
-            if device_info is not None:
+            if device_info:
                 device_path = device_info.get('path', None)
         if device_path is None:
             raise exception.BrickException(

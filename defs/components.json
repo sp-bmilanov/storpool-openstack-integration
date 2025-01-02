@@ -1575,6 +1575,18 @@
                     }
                 },
                 "bobcat": {
+                    "6.4.2.1.0.0": {
+                        "comment": "StorPool updates for Bobcat 6.4.2 (attach-globalid, raise-on-spopenstack-issues)",
+                        "files": {
+                            "initiator/connectors/fibre_channel.py": {
+                                "sha256": "5847f578930125b4878bc48a71122c6f8b0e89b4e5320d2b9fbce6a74f18544c"
+                            },
+                            "initiator/connectors/storpool.py": {
+                                "sha256": "46f49ca9c8470ce5782a13714ed52a143e600a6550f0b7c7fed7813873f62e5c"
+                            }
+                        },
+                        "outdated": false
+                    },
                     "6.4.0.2.0.0": {
                         "comment": "StorPool updates for Bobcat 6.4.0 (attach-globalid, raise-on-spopenstack-issues)",
                         "files": {
@@ -1585,7 +1597,7 @@
                                 "sha256": "b85eacdb358603ecd976190d96a059d7c5f444803cc4e88d5019b5913dd6e6b5"
                             }
                         },
-                        "outdated": false
+                        "outdated": true
                     },
                     "6.4.0.1.0.0": {
                         "comment": "StorPool updates for Bobcat 6.4.0",
